@@ -1,0 +1,36 @@
+version: '1.0'
+services:
+  - name: verdaccio
+    type: docker
+    image: verdaccio/verdaccio
+    version: 4
+    globalDeps: apk add bash
+    ports:
+      - 4873
+    remoteAccess: false
+    volumes:
+      - directory: /verdaccio/storage
+    volumesUID: 10001
+    configFiles:
+      - dest: /verdaccio/conf/config.yaml
+        src: ./configs/config.yaml
+    deployTo:
+      - verdaccio
+
+  - name: web
+    type: nginx
+    version: 1.17
+    ports:
+      - 80
+      - 443
+    remoteAccess: true
+    serviceFiles:
+      - name: verdaccio
+    deployTo:
+      - verdaccio
+
+hosts:
+  - name: verdaccio
+    requirements:
+      cores: 1
+      memory: 1
